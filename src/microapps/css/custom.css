@@ -1,0 +1,32 @@
+.navbar {
+    background-color: #343a40;
+  }
+  
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .offcanvas-header {
+    background-color: #343a40;
+    color: white;
+  }
+  
+  .offcanvas-body {
+    background-color: #f8f9fa;
+  }
+  
+  .nav-link {
+    font-size: 1.2rem;
+    color: #343a40;
+    margin-bottom: 1rem;
+  }
+  
+  .nav-link:hover {
+    color: #007bff;
+  }
+  
+  .offcanvas-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
