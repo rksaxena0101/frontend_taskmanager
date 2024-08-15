@@ -1,10 +1,11 @@
+// App.js
 import React, { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 import { Table } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import EditOrAddTask from "./microapps/tasks/EditTasks";
@@ -12,6 +13,8 @@ import Notes from "./microapps/notes/AddNotes";
 import ShowNotes from "./microapps/notes/ShowNotes";
 import OffcanvasMenuBar from "./microapps/OffcanvasNavBar";
 import AddTask from "./microapps/tasks/AddTasks";
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import {
   getAllTasks,
@@ -21,6 +24,14 @@ import {
   addTask,
   addNoteToTask
 } from './microapps/tasks/taskServices';
+
+const PrivateRoute = ({ element, ...rest }) => (
+  localStorage.getItem('status') ? (
+    element
+  ) : (
+    <Navigate to="/login" />
+  )
+);
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -32,7 +43,7 @@ const App = () => {
     title: "",
     description: "",
     deadline: "",
-    status: ""
+    status: null
   });
   const [notes, setNotes] = useState([]);
 
@@ -103,7 +114,7 @@ const App = () => {
 
   const addItem = async () => {
     const { title, description, deadline, status } = userInput;
-    if (title !== "" && description !== "" && deadline !== "" && status !== "") {
+    if (title !== "" && description !== "" && deadline !== "" && status !== null) {
       const newItem = {
         id: Math.random(), // Change this to use a better ID mechanism
         title,
@@ -118,7 +129,7 @@ const App = () => {
           title: "",
           description: "",
           deadline: "",
-          status: ""
+          status: null
         });
       } catch (error) {
         console.error('Error adding task:', error);
@@ -148,6 +159,11 @@ const App = () => {
     setIsModleOpen(false);
   }
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+
   if (!tasks) {
     return <p>Loading...</p>;
   }
@@ -155,98 +171,100 @@ const App = () => {
   return (
     <Container>
       <OffcanvasMenuBar />
+      <Button onClick={logout}>Logout</Button>
       <hr />
-      <div className="App">
-        <header className="App-header">
-          <div className="table-responsive">
-            <h2>Tasks List</h2>
-            <Table className="custom-table" striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Task number</th>
-                  <th>Task title</th>
-                  <th>Task description</th>
-                  <th>Task deadline</th>
-                  <th>Task status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tasks.map(task => (
-                  <tr key={task.id}>
-                    <td>{task.id}</td>
-                    <td>{task.title}</td>
-                    <td>{task.description}</td>
-                    <td>{task.deadline}</td>
-                    <td>{task.status}</td>
-                    <td>
-                      <Button
-                        style={{ marginRight: "10px" }}
-                        variant="light"
-                        onClick={() => deleteItem(task.id)}
-                      >
-                        Delete
-                      </Button>
+          <PrivateRoute element={
+            <div className="App">
+              <header className="App-header">
+                <div className="table-responsive">
+                  <h2>Tasks List</h2>
+                  <Table className="custom-table" striped bordered hover>
+                    <thead>
+                      <tr>
+                        <th>Task number</th>
+                        <th>Task title</th>
+                        <th>Task description</th>
+                        <th>Task deadline</th>
+                        <th>Task status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tasks.map(task => (
+                        <tr key={task.id}>
+                          <td>{task.id}</td>
+                          <td>{task.title}</td>
+                          <td>{task.description}</td>
+                          <td>{task.deadline.split('T')[0]}</td>
+                          <td>{task.status ? 'Completed' : 'Not Completed'}</td>
+                          <td>
+                            <Button
+                              style={{ marginRight: "10px" }}
+                              variant="light"
+                              onClick={() => deleteItem(task.id)}
+                            >
+                              Delete
+                            </Button>
 
-                      <Button
-                        variant="light"
-                        onClick={() => openEditItemBox(task)}
-                      >
-                        Edit
-                      </Button>
+                            <Button
+                              variant="light"
+                              onClick={() => openEditItemBox(task)}
+                            >
+                              Edit
+                            </Button>
 
-                      <Button
-                        variant="light"
-                        onClick={() => openNotesBox(task)}
-                      >
-                        Add Notes
-                      </Button>
+                            <Button
+                              variant="light"
+                              onClick={() => openNotesBox(task)}
+                            >
+                              Add Notes
+                            </Button>
 
-                      <Button
-                        variant="light"
-                        onClick={() => getNotesFromTask(task)}
-                      >
-                        Show Notes
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </header>
-      </div>
-      <Row>
-        <Col md={{ span: 6 }}>
-          <Form>
-            <AddTask updateInput={updateInput} userInput={userInput} addItem={addItem}/>
-          </Form>
-        </Col>
-      </Row>
-      {currentItem && (
-        <EditOrAddTask
-          isOpen={modalIsOpen}
-          onRequestClose={closeEditItemBox}
-          item={currentItem}
-          onSave={saveTasks}
-        />
-      )}
-      {currentItem && (
-        <Notes
-          isOpened={isModleOpen}
-          onReqClose={closeNotesBox}
-          onNoteSave={saveNotesForTask}
-          task={currentItem}
-        />
-      )}
-      {currentItem && (
-        <ShowNotes
-          isNotesOpened={isShowModleOpen}
-          onCloseNotes={closeNoteShowBox}
-          notes={notes}
-          taskId={currentItem.id}
-        />
-      )}
+                            <Button
+                              variant="light"
+                              onClick={() => getNotesFromTask(task)}
+                            >
+                              Show Notes
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              </header>
+              <Row>
+                <Col md={{ span: 6 }}>
+                  <AddTask updateInput={updateInput} userInput={userInput} addItem={addItem} />
+                </Col>
+              </Row>
+              {currentItem && (
+                <EditOrAddTask
+                  isOpen={modalIsOpen}
+                  onRequestClose={closeEditItemBox}
+                  item={currentItem}
+                  onSave={saveTasks}
+                />
+              )}
+              {currentItem && (
+                <Notes
+                  isOpened={isModleOpen}
+                  onReqClose={closeNotesBox}
+                  onNoteSave={saveNotesForTask}
+                  task={currentItem}
+                />
+              )}
+              {currentItem && (
+                <ShowNotes
+                  isNotesOpened={isShowModleOpen}
+                  onCloseNotes={closeNoteShowBox}
+                  notes={notes}
+                  taskId={currentItem.id}
+                />
+              )}
+            </div>
+          } />
+     
     </Container>
   );
 };

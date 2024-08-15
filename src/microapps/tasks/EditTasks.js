@@ -4,15 +4,22 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
 const EditOrAddTask = ({ isOpen, onRequestClose, item, onSave }) => {
-  const [task, setTask] = useState({ title: '', description: '', deadline: '' });
+  const [task, setTask] = useState({ title: '', description: '', deadline: '', status: null });
 
   useEffect(() => {
     if (item) {
       setTask(item);
     } else {
-      setTask({ title: '', description: '', deadline: '' });
+      setTask({ title: '', description: '', deadline: '', status: null });
     }
   }, [item]);
+
+  const handleCheckboxChange = (status) => {
+    setTask((prevTask) => ({
+      ...prevTask,
+      status: status,
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,9 +63,31 @@ const EditOrAddTask = ({ isOpen, onRequestClose, item, onSave }) => {
             <Form.Control
               type="date"
               name="deadline"
-              value={task.deadline}
+              value={task.deadline.split('T')[0]}
               onChange={handleChange}
             />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formTaskStatus">
+            <Form.Label>Task Status</Form.Label>
+            <Form.Check 
+                 type="checkbox" 
+                 label="Completed" 
+                 checked={task.status === true} 
+                 onChange={() => handleCheckboxChange(true)}
+                 id='formTaskStatusTrue'
+                 required
+            />
+            <Form.Check 
+                type="checkbox" 
+                label="Not Completed" 
+                checked={task.status === false} 
+                onChange={() => handleCheckboxChange(false)}
+                id='formTaskStatusFalse'
+                required
+            />
+            <Form.Control.Feedback type="invalid">
+                Please select a task status.
+            </Form.Control.Feedback>
           </Form.Group>
         </Form>
       </Modal.Body>
