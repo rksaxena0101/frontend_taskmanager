@@ -24,6 +24,9 @@ import {
   addTask,
   addNoteToTask
 } from './microapps/tasks/taskServices';
+import { getLoggedInUserDetails } from "./microapps/tasks/UserService";
+
+const jwtToken = localStorage.getItem('jwt');
 
 const PrivateRoute = ({ element, ...rest }) => (
   localStorage.getItem('status') ? (
@@ -35,6 +38,7 @@ const PrivateRoute = ({ element, ...rest }) => (
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
+  const [users, setUsers] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isModleOpen, setIsModleOpen] = useState(false);
   const [isShowModleOpen, setIsShowModleOpen] = useState(false);
@@ -46,7 +50,7 @@ const App = () => {
     status: null
   });
   const [notes, setNotes] = useState([]);
-
+  
   useEffect(() => {
     const fetchTasks = async () => {
       const data = await getAllTasks();
@@ -54,6 +58,20 @@ const App = () => {
     };
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    const getLoggInUserDetails = async (username) => {
+    try {
+      const userDetals = await getLoggedInUserDetails(username);
+      console.log("App.js::userEffect userdetails:::-",userDetals);
+      setUsers(userDetals);
+    } catch (error) {
+      console.log("Failed to fetch logged in user details", error);
+    }
+ };
+ getLoggInUserDetails(username);
+},[]);
 
   const getNotesFromTask = async (task) => {
     try {
@@ -171,6 +189,7 @@ const App = () => {
   return (
     <Container>
       <OffcanvasMenuBar />
+      <p>Welcome {users.fullName && <b>{users.fullName}</b>}</p>
       <Button onClick={logout}>Logout</Button>
       <hr />
           <PrivateRoute element={
@@ -190,7 +209,7 @@ const App = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {tasks.map(task => (
+                      {jwtToken && tasks.map(task => (
                         <tr key={task.id}>
                           <td>{task.id}</td>
                           <td>{task.title}</td>

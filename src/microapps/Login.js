@@ -23,6 +23,7 @@ function Login() {
             } 
             
             const response = await axios.post('http://localhost:3232/auth/login', { email: username, password });
+            localStorage.setItem('username',username);
             localStorage.setItem('status',response.data.status);
             console.log('jwt::Login.js:-', response.data.jwt);  
             localStorage.setItem('jwt',response.data.jwt);
