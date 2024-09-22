@@ -25,13 +25,15 @@ import {
   addTask,
   addNoteToTask
 } from './microapps/tasks/taskServices';
-import { getLoggedInUserDetails } from "./microapps/tasks/UserService";
+import { fetchAllUsers, getLoggedInUserDetails } from "./microapps/tasks/UserService";
 
 const jwtToken = localStorage.getItem('jwt');
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(""); // New state for selected user
+  const [allUsers, setAllUsers] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isModleOpen, setIsModleOpen] = useState(false);
   const [isShowModleOpen, setIsShowModleOpen] = useState(false);
@@ -48,23 +50,37 @@ const App = () => {
     const fetchTasks = async () => {
       const data = await getAllTasks();
       setTasks(data);
-    };
+    }
     fetchTasks();
   }, []);
 
   useEffect(() => {
     const username = localStorage.getItem('username');
     const getLoggInUserDetails = async (username) => {
-    try {
-      const userDetals = await getLoggedInUserDetails(username);
-      //console.log("App.js::userEffect userdetails:::-",userDetals);
-      setUsers(userDetals);
-    } catch (error) {
-      console.log("Failed to fetch logged in user details", error);
+      try {
+        const userDetals = await getLoggedInUserDetails(username);
+        setUsers(userDetals);
+      } catch (error) {
+        console.log("Failed to fetch logged in user details", error);
+      }
+    };
+    getLoggInUserDetails(username);
+  },[]);
+
+  useEffect(() => {
+    if (users.role === 'ROLE_ADMIN') {
+        const getAllUsersDetails = async () => {
+            try {
+                const AllUserList = await fetchAllUsers();
+                //console.log("useEffect::alluserdetails:- ", AllUserList); // Check if the data is logged correctly
+                setAllUsers(AllUserList); // Update state with the fetched user list
+            } catch (error) {
+                console.log("Failed to fetch all users detail.", error);
+            }
+        };
+        getAllUsersDetails();
     }
- };
- getLoggInUserDetails(username);
-},[]);
+  }, [users.role]);
 
   const getNotesFromTask = async (task) => {
     try {
@@ -174,17 +190,38 @@ const App = () => {
     return <p>Loading...</p>;
   }
 
+  // Handle dropdown user selection
+  const handleUserSelection = (event) => {
+    setSelectedUser(event.target.value); // Set the selected user ID
+    console.log("Selected user ID:", event.target.value); // Check if selection works
+  };
+
   return (
     <Container>
       <OffcanvasMenuBar />
-      {/* {console.log(users)}; */}
-      <p>Welcome {users.fullName && <b>{users.fullName}</b>}</p>
+      {/* {console.log("App.js::All users:- ",allUsers)} */}
+      <p>Welcome {users.fullName && (users.role == "ROLE_ADMIN")? <b>Admin {users.fullName}</b> : <b>{users.fullName}</b>}</p>
       <hr />
           <PrivateRoute element={
             <div className="App">
+
+            {/* Dropdown to select users */}
+            {users.role === 'ROLE_ADMIN' && (
+              <div>
+                <label htmlFor="userSelect">Select a user</label>
+                <select id="userSelect" value={selectedUser} onChange={handleUserSelection}>
+                  <option value="">-- Select User --</option>
+                  {allUsers.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.fullName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <br/>
               <header className="App-header">
                 <div className="table-responsive">
-                  <h2>Tasks List</h2>
                   <Table className="custom-table" striped bordered hover>
                     <thead>
                       <tr>

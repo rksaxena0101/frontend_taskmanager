@@ -17,3 +17,18 @@ const fetchOptions = {
     }
     return response.json();
   };
+
+  export const fetchAllUsers = async () => {
+    try {
+        const response = await fetch(`${API_URL}`,{...fetchOptions, method: "GET"});
+        //console.log("UserService.js::fetchAllUsers Response Object:- ", response);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch users: ${response.statusText}`);
+        }
+        const usersData = await response.json(); // Parse the response as JSON
+        //console.log("UserService.js::fetchAllUsers Data:- ", usersData);
+        return usersData; // Return the parsed user data
+    } catch (error) {
+        console.error('Error fetching users:', error);
+    }
+};
