@@ -13,7 +13,7 @@ function Login() {
     const [username, setUsername] = useState(''); 
     const [password, setPassword] = useState(''); 
     const [error, setError] = useState(''); 
-    const history = useNavigate(); 
+    const navigate = useNavigate(); 
   
     const handleLogin = async () => { 
         try { 
@@ -24,11 +24,12 @@ function Login() {
             
             const response = await axios.post('http://localhost:3232/auth/login', { email: username, password });
             localStorage.setItem('username',username);
-            localStorage.setItem('status',response.data.status);
+            (response.data.status === true) ? localStorage.setItem('status','true') : localStorage.setItem('status','false');
+            console.log('status::Login.js:-', response.data.status); 
             console.log('jwt::Login.js:-', response.data.jwt);  
             localStorage.setItem('jwt',response.data.jwt);
             console.log('Login successful:', response.data);  
-            history('/app'); 
+            navigate('/app'); 
         } catch (error) { 
             console.error('Login failed:', error.response ? error.response.data : error.message); 
             setError('Invalid username or password.'); 

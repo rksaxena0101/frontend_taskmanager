@@ -5,31 +5,27 @@ import SignupPage from './microapps/SignupPage';
 import App from "./App";
 import Dashboard from "./microapps/Dashboard";
 
-// // Dummy function to check signup status - replace with actual implementation
-const isMemberSignedUp = () => {
-  // Replace with your actual logic to determine signup status
-  // For example, checking localStorage or making an API call
-  return localStorage.getItem('signedUp') === 'true';
+// PrivateRoute Component to protect routes
+export const PrivateRoute = ({ element }) => {
+  const status = localStorage.getItem('status');
+  return status === 'true' ? element : <Navigate to="/login" />;
 };
 
-// Component to handle routing based on signup status
-const routing = () => {
-    const status = localStorage.getItem('status');
-    console.log("status::Routing:- ",status);
+const Routing = () => {
+  const isMemberSignedUp = () => localStorage.getItem('signedUp') === 'true';
+
   return (
-    <div className="App">
-      <Router>
-        <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path='/dashboard' element={<Dashboard />}/>
-            <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="/app" element={status ? <App /> : <Navigate to="/login" />} />
-            <Route path="/register" element={isMemberSignedUp() ? <Navigate to="/login" /> : <SignupPage />} />
-          {/* You can add more routes here as needed */}
-        </Routes>
-      </Router>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Navigate to="/login" />} />
+        {/* Use PrivateRoute for protected /app */}
+        <Route path="/app" element={<PrivateRoute element={<App />} />} />
+        <Route path="/register" element={isMemberSignedUp() ? <Navigate to="/login" /> : <SignupPage />} />
+      </Routes>
+    </Router>
   );
 };
 
-export default routing;
+export default Routing;

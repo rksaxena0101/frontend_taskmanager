@@ -1,13 +1,23 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Button, Offcanvas, Container } from "react-bootstrap";
+import { useNavigate  } from 'react-router-dom';
 
 const OffcanvasNavBar = () => {
   const [show, setShow] = useState(false);
+  const navigate = useNavigate();  // Initialize useNavigate
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const logout = () => {
+     // Clear the local storage to log the user out
+     localStorage.removeItem('jwt');
+     localStorage.setItem('status', 'false');
+     
+     // Programmatically navigate to login page
+     navigate('/login');
+  }
   return (
     <>
       <Navbar bg="dark" variant="dark" expand={false}>
@@ -27,6 +37,7 @@ const OffcanvasNavBar = () => {
             <Nav.Link href="#action1">Home</Nav.Link>
             <Nav.Link href="#action2">Tasks</Nav.Link>
             <Nav.Link href="#action3">Notes</Nav.Link>
+            <Nav.Link href="/login" onClick={logout}>Logout</Nav.Link>
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>

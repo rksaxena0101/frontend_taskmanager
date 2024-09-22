@@ -49,12 +49,12 @@ function AddTasks({ updateInput, userInput, addItem }) {
             </style>
 
             <Button variant="flat" className="but" size="xxl" aria-controls="example-collapse-text" aria-expanded={open} onClick={() => setOpen(!open)}>Add Tasks</Button>
-
+            <br/><br/> 
             <Collapse in={open}>
                 <div id="example-collapse-text">
                     <Form noValidate validated={validated} onSubmit={handleAddItem}>
                         <Form.Group className="mb-3" controlId="formTaskTitle">
-                            <Form.Label>Task Title</Form.Label>
+                            {/* <Form.Label>Task Title</Form.Label> */}
                             <Form.Control
                                 type="text"
                                 placeholder="Enter task title"
@@ -68,7 +68,7 @@ function AddTasks({ updateInput, userInput, addItem }) {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formTaskDescription">
-                            <Form.Label>Task Description</Form.Label>
+                            {/* <Form.Label>Task Description</Form.Label> */}
                             <Form.Control
                                 as="textarea"
                                 rows={3}
@@ -84,7 +84,7 @@ function AddTasks({ updateInput, userInput, addItem }) {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formTaskDeadline">
-                            <Form.Label>Task Deadline</Form.Label>
+                            <Form.Label>Select you deadline to complete task</Form.Label>
                             <Form.Control
                                 type="date"
                                 value={userInput.deadline}
@@ -97,7 +97,7 @@ function AddTasks({ updateInput, userInput, addItem }) {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formTaskStatus">
-                            <Form.Label>Task Status</Form.Label>
+                            {/* <Form.Label>Task Status</Form.Label> */}
                             <Form.Check 
                                 type="checkbox" 
                                 label="Completed" 

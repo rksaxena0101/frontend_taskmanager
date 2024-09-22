@@ -1,6 +1,5 @@
 // App.js
 import React, { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -13,6 +12,8 @@ import Notes from "./microapps/notes/AddNotes";
 import ShowNotes from "./microapps/notes/ShowNotes";
 import OffcanvasMenuBar from "./microapps/OffcanvasNavBar";
 import AddTask from "./microapps/tasks/AddTasks";
+import { PrivateRoute } from "./routing";
+
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -27,14 +28,6 @@ import {
 import { getLoggedInUserDetails } from "./microapps/tasks/UserService";
 
 const jwtToken = localStorage.getItem('jwt');
-
-const PrivateRoute = ({ element, ...rest }) => (
-  localStorage.getItem('status') ? (
-    element
-  ) : (
-    <Navigate to="/login" />
-  )
-);
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -64,7 +57,7 @@ const App = () => {
     const getLoggInUserDetails = async (username) => {
     try {
       const userDetals = await getLoggedInUserDetails(username);
-      console.log("App.js::userEffect userdetails:::-",userDetals);
+      //console.log("App.js::userEffect userdetails:::-",userDetals);
       setUsers(userDetals);
     } catch (error) {
       console.log("Failed to fetch logged in user details", error);
@@ -177,11 +170,6 @@ const App = () => {
     setIsModleOpen(false);
   }
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
-
   if (!tasks) {
     return <p>Loading...</p>;
   }
@@ -189,8 +177,8 @@ const App = () => {
   return (
     <Container>
       <OffcanvasMenuBar />
+      {/* {console.log(users)}; */}
       <p>Welcome {users.fullName && <b>{users.fullName}</b>}</p>
-      <Button onClick={logout}>Logout</Button>
       <hr />
           <PrivateRoute element={
             <div className="App">
@@ -217,34 +205,46 @@ const App = () => {
                           <td>{task.deadline.split('T')[0]}</td>
                           <td>{task.status ? 'Completed' : 'Not Completed'}</td>
                           <td>
-                            <Button
-                              style={{ marginRight: "10px" }}
-                              variant="light"
-                              onClick={() => deleteItem(task.id)}
-                            >
-                              Delete
-                            </Button>
-
-                            <Button
-                              variant="light"
-                              onClick={() => openEditItemBox(task)}
-                            >
-                              Edit
-                            </Button>
-
-                            <Button
-                              variant="light"
-                              onClick={() => openNotesBox(task)}
-                            >
-                              Add Notes
-                            </Button>
-
-                            <Button
-                              variant="light"
-                              onClick={() => getNotesFromTask(task)}
-                            >
-                              Show Notes
-                            </Button>
+                            {
+                              /*Check condition if users have role 'ROLE_CUSTOMER' not show delete or edit button else show edit and delete button*/
+                              (users.role === "ROLE_ADMIN") ? 
+                              (<><Button
+                                  style={{ marginRight: "10px" }}
+                                  variant="light"
+                                  onClick={() => deleteItem(task.id)}
+                                >
+                                  Delete
+                                </Button><Button
+                                  variant="light"
+                                  onClick={() => openEditItemBox(task)}
+                                >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                  variant="light"
+                                  onClick={() => openNotesBox(task)}
+                                >
+                                  Add Notes
+                                </Button><Button
+                                  variant="light"
+                                  onClick={() => getNotesFromTask(task)}
+                                >
+                                    Show Notes
+                                  </Button>
+                                  </>)
+                              :
+                              ( <><Button
+                                  variant="light"
+                                  onClick={() => openNotesBox(task)}
+                                >
+                                  Add Notes
+                                </Button><Button
+                                  variant="light"
+                                  onClick={() => getNotesFromTask(task)}
+                                >
+                                    Show Notes
+                                  </Button></>)
+                            }
                           </td>
                         </tr>
                       ))}
